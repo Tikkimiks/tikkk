@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block main_content%}
+
+<style>
+    #main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #chart-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 80%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    #chartdiv2 {
+        width: 80%;
+        height: 500px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #chart-description {
+        width: 20%;
+        padding: 20px;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        margin-right: 20px;
+    }
+
+    #chart-details {
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        color: #555;
+    }
+
+    #chart-title {
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    #chart-description h3 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+</style>
+<div id="main-container">
+    <h2 id="chart-title" class="text-white mt-5">Статистика по популярным заявкам</h2>
+    <div id="chart-container" class="w-full bg-gray-900 p-8 rounded-lg shadow-lg">
+        <div id="chart-description" class="text-gray-300">
+            <h3 class="text-xl font-semibold mb-4">Описание вашего графика</h3>
+            <p>Здесь вы можете добавить более подробное описание вашего графика.</p>
+        </div>
+        <div id="chartdiv2" class="w-full h-96 bg-white"></div>
+    </div>
+</div>
+<!-- Resources -->
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+<!-- Chart code -->
+<script>
+    am5.ready(function () {
+
+        // Создание root элемента
+        var root = am5.Root.new("chartdiv2");
+
+        // Установка темы
+        root.setThemes([
+            am5themes_Animated.new(root)
+        ]);
+
+        // Создание круговой диаграммы
+        var chart = root.container.children.push(am5percent.PieChart.new(root, {
+            layout: root.verticalLayout,
+            innerRadius: am5.percent(50)
+        }));
+
+        // Создание серии для диаграммы
+        var series = chart.series.push(am5percent.PieSeries.new(root, {
+            valueField: "count",
+            categoryField: "service",
+            alignLabels: false
+        }));
+
+        // Установка данных для диаграммы
+        var data = JSON.parse('{{ data_json|safe }}');
+        series.data.setAll(data);
+        console.log(data);
+
+        // Создание легенды
+        var legend = chart.children.push(am5.Legend.new(root, {
+            centerX: am5.percent(50),
+            x: am5.percent(50),
+            marginTop: 15,
+            marginBottom: 15,
+        }));
+
+        legend.data.setAll(series.dataItems);
+
+        // Анимация
+        series.appear(1000, 100);
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+{% block main_content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<div class="bg-white rounded-lg shadow-lg min-h">
+    <form id="requestForm" class="flex pb-5 items-center justify-center flex-col gap-5 space-x-4">
+        <label for="requestSelect" class="font-medium text-gray-700">Заявка:</label>
+        <select id="requestSelect" name="request" class="bg-gray-100 border border-gray-300 text-gray-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Выберите заявку</option>
+            {% for request in service_requests %}
+                <option value="{{ request.id }}" data-address="{{ request.address }}">{{ request.service.name_service }} ({{ request.user.username }})</option>
+            {% endfor %}
+        </select>
+        <button type="button" id="showScheduleButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Показать расписание
+        </button>
+    </form>
+    <div class="bg-white rounded-lg shadow-lg min-h">
+        <div id="selectedRequestAddress" class="px-4 py-2 bg-gray-200"></div> <!-- Вывод адреса выбранной заявки -->
+        <div id="calendarContainer" style="display: none;">
+            <div id="calendar" class="w-4/5 mx-auto mt-4"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-container {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 50;
+        justify-content: center;
+        align-items: center;
+        width: 90%;
+        max-width: 600px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="modal-container" id="memberModal">
+    <h5 class="text-lg font-semibold mb-4">Выберите участника</h5>
+    <form id="memberForm">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="hidden" id="selectedDate" value="">
+        <input type="hidden" id="currentDate" value="{{ current_date }}">
+
+        <div id="memberList">
+            {% for member in members %}
+            <div class="member flex items-center justify-between p-2 border-b">
+                <span>{{ member.user.username }} (Бригада: {{ member.brigade.name_brigade }})</span>
+                <button class="member-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+                        data-member-id="{{ member.user.id }}"
+                        data-brigade-id="{{ member.brigade.id }}">
+                    Добавить
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+    <div class="flex justify-end mt-4">
+        <button type="button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                id="closeModalBtn">Закрыть
+        </button>
+    </div>
+</div>
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    $('#showScheduleButton').on('click', function () {
+        var selectedRequest = $('#requestSelect').val();
+        var requestAddress = $('#requestSelect option:selected').data('address'); // Получаем адрес выбранной заявки
+        if (selectedRequest) {
+            $('#calendarContainer').show();
+
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ru',
+                timeZone: 'UTC',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth'
+                },
+                editable: true,
+                selectable: true,
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    fetch('/get_schedule_members/?request_id=' + selectedRequest + '&start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr + '&timeZone=' + fetchInfo.timeZone)
+                        .then(response => response.json())
+                        .then(data => {
+                            successCallback(data);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching events:', error);
+                            failureCallback(error);
+                        });
+                },
+                dateClick: function (info) {
+                    var date = info.dateStr;
+                    $('#selectedDate').val(date);
+                    loadBrigadeMembers(date, selectedRequest);
+                    $('#memberModal').show();
+                }
+            });
+            calendar.render(); 
+            $('#selectedRequestAddress').text('Адрес: ' + requestAddress); // Выводим адрес выбранной заявки на странице
+        } else {
+            alert('Пожалуйста, выберите заявку.');
+        }
+    });
+
+    $('#closeModalBtn').on('click', function () {
+        $('#memberModal').hide();
+    });
+
+    async function loadBrigadeMembers(date, requestId) {
+        try {
+            const response = await fetch('/get_brigade_members/?date=' + date + '&request_id=' + requestId);
+            const data = await response.json();
+
+            if (!data.members) {
+                $('#memberList').html('<p>No members found for this date.</p>');
+                return;
+            }
+
+            $('#memberList').empty();
+
+            for (const member of data.members) {
+                const action = member.is_member_added ? 'Убрать' : 'Добавить';
+                const buttonClass = member.is_member_added ? 'bg-red-500 hover:bg-red-700' : 'bg-blue-500 hover:bg-blue-700';
+
+                $('#memberList').append(`
+                    <div class="member flex items-center justify-between p-2 border-b">
+                        <span>${member.username
+                        } (Бригада: ${member.brigade.name_brigade})</span>
+                        <button class="member-button ${buttonClass} text-white font-bold py-1 px-2 rounded"
+                            data-member-id="${member.id}"
+                            data-brigade-id="${member.brigade.id}">
+                            ${action}
+                        </button>
+                    </div>
+                `);
+            }
+        } catch (error) {
+            $('#memberList').html('<p>Error loading members. Please try again later.</p>');
+        }
+    }
+
+    $(document).on('click', '.member-button', async function() {
+        const memberId = $(this).data('member-id');
+        const brigadeId = $(this).data('brigade-id');
+        const date = $('#selectedDate').val();
+        const requestId = $('#requestSelect').val();
+
+        const action = $(this).text().trim() === 'Добавить' ? 'add' : 'remove';
+        const url = action === 'add' ? '/add_member_to_date/' : '/remove_member_from_date/';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    member_id: memberId,
+                    brigade_id: brigadeId,
+                    date: date,
+                    request_id: requestId
+                })
+            });
+
+            if (response.ok) {
+                loadBrigadeMembers(date, requestId);
+            } else {
+                const result = await response.json();
+                console.error('Error:', result.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+
+{% endblock %}

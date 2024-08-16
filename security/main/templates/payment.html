@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <h2 class="text-2xl font-bold mb-4">Введите данные вашей карты для оплаты</h2>
+    <p>Номер заявки: {{ service_request_id }}</p>
+
+<!--    <p class="text-lg mb-4">Сумма оплаты: {{ total_price }} руб.</p>-->
+    <form action="{% url 'process_payment' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="card_number">Номер карты:</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="card_number" name="card_number" type="text" placeholder="Введите номер карты" required>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="expiry_date">Срок службы (MM/YYYY):</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="expiry_date" name="expiry_date" type="text" placeholder="ММ/ГГГГ" required>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="cvv">CVV-код:</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="cvv" name="cvv" type="text" placeholder="Введите CVV-код" required>
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit">Оплатить
+            </button>
+        </div>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#card_number').inputmask('9999 9999 9999 9999'); // Маска для номера карты
+    $('#expiry_date').inputmask('99/9999'); // Маска для даты в формате ММ/ГГГГ
+    $('#cvv').inputmask('999'); // Маска для даты в формате ММ/ГГГГ
+  });
+</script>
+{% if messages %}
+<div id="notification"
+     class="animateanimated animatefadeInUp fixed bottom-0 right-0 m-4 p-4 bg-green-100 border-t-4 border-green-500 rounded-b text-green-900 shadow-md">
+    {% for message in messages %}
+    <p class="font-bold">{{ message.tags|title }}</p>
+    <p class="text-sm">{{ message|title }}</p>
+    {% endfor %}
+</div>
+<script>
+    // Скрипт для автоматического скрытия уведомления через 5 секунд
+    setTimeout(function () {
+        var notification = document.getElementById('notification');
+        notification.classList.remove('animate__fadeInUp');
+        notification.classList.add('animate__fadeOutDown');
+        setTimeout(function () {
+            notification.style.display = 'none';
+        }, 1000); // Время анимации fadeOutDown
+    }, 5000);
+</script>
+{% endif %}
+
+
+{% endblock %}

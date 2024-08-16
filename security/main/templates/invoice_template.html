@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block main_content%}
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6">
+            <h1 class="text-3xl font-bold mb-2 text-gray-800">Квитанция об оплате</h1>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">Номер карты:</p>
+<!--                <p class="text-lg text-gray-800">{{ card_number }}</p>-->
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">Дата окончания срока действия:</p>
+<!--                <p class="text-lg text-gray-800">{{ expiry_date }}</p>-->
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">CVV:</p>
+<!--                <p class="text-lg text-gray-800">{{ cvv }}</p>-->
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">Время оплаты:</p>
+                <p class="text-lg text-gray-800">{{ payment_time }}</p>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">Сумма:</p>
+                <p class="text-lg text-gray-800">{{ total_amount }}</p>
+            </div>
+            <p class="text-base text-gray-700">Благодарим за использование наших услуг! Ждем вас снова.</p>
+        </div>
+    </div>
+{% endblock %}

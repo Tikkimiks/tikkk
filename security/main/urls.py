@@ -1,0 +1,43 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('about/', views.about, name='about'),
+    path('about_projects/', views.about_projects, name='about_projects'),
+    path('statistics/', views.statistics, name='statistics'),
+    path('brigade/', views.brigade_page, name='brigade'),
+    path('index/', views.index, name='home'),
+    path('login/', views.login, name='login'),
+    path('register/', views.register, name='register'),
+    path('profile/', views.profile, name='profile'),
+    path('services/', views.main_page, name='main_page'),
+    path('submit_service_request/', views.service_request_handler, name='submit_service_request'),
+    path('get_price/', views.get_price, name='get_price'),
+    path('service/<int:id_service>/', views.service_page, name='service_page'),
+    path('schedule/', views.schedule, name='schedule'),
+    path('get_report/<int:report_id>/', views.get_report, name='get_report'),
+    path('display_schedule/', views.display_schedule, name='display_schedule'),
+    path('get_members_for_brigade/<int:brigade_id>/', views.get_members_for_brigade, name='get_members_for_brigade'),
+    path('payment/', views.payment, name='payment'),
+    path('process_payment/', views.view_service_request, name='process_payment'),
+    path('generate_receipt_pdf/', views.generate_receipt, name='generate_receipt_pdf'),
+    path('send_email_with_attachment/', views.send_email_with_attachment, name='send_email_with_attachment'),
+    path('get_filtered_data/', views.get_filtered_data, name='get_filtered_data'),
+    path('schedule_view/', views.schedule_view, name='schedule_view'),
+    path('add-event/', views.add_event, name='add_event'),
+    path('save-event/', views.save_event, name='save_event'),
+    path('get_service_requests/', views.get_service_requests, name='get_service_requests'),
+    # Другие URL-шаблоны вашего приложения...
+    path('get_available_dates/', views.get_available_dates, name='get_available_dates'),
+    # path('schedule_cal/', views.schedule_cal, name='schedule_cal'),
+    path('add_member_to_date/', views.add_member_to_date, name='add_member_to_date'),
+    # path('add_schedule_member/', views.add_schedule_member, name='add_schedule_member'),
+    path('remove_member_from_date/', views.remove_member_from_date, name='remove_member_from_date'),
+    path('get_brigade_members/', views.get_brigade_members, name='get_brigade_members'),
+    path('add_member_to_date/', views.add_member_to_date, name='add_member_to_date'),
+    path('remove_member_from_date/', views.remove_member_from_date, name='remove_member_from_date'),
+    path('get_schedule_members/', views.get_schedule_members, name='get_schedule_members'),
+    path('check_member_added/', views.check_member_added, name='check_member_added'),
+    
+]

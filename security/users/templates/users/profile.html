@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block main_content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .statistics-block {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        transition: right 0.3s ease;
+    }
+
+    .statistics-block.visible {
+        right: 100px;
+    }
+</style>
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4">
+    <div class="flex flex-col sticky top-0 z-10 w-full max-w-xl">
+        <div class="bg-gray-800 border border-gray-800 shadow-lg rounded-2xl p-4 mb-4">
+            <div class="flex items-between justify-center">
+                <div>
+                    <h2 class="text-xl text-gray-200 font-bold">{{ user.first_name }} {{ user.last_name }}</h2>
+                    <p class="text-lg text-gray-400">{{ user.groups.first.name }}</p>
+                    {% if member_brigade %}
+                    <p class="text-lg text-gray-400">Бригада: {{ member_brigade.brigade.name_brigade }}</p>
+                    <p class="text-lg text-gray-400">Опыт: {{ member_brigade.experience }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <form method="post" enctype="multipart/form-data" class="flex space-x-2">
+                        {% csrf_token %}
+                        <div class="space-y-1">
+                            {% for f in form %}
+                            <div>
+                                <label for="{{ f.id_for_label }}" class="block text-gray-300 text-sm">{{ f.label }}</label>
+                                {{ f }}
+                                <div class="form-error text-red-500 text-xs">{{ f.errors }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="flex flex-col items-around justify-around space-y-1">
+                            <button type="submit"
+                                    class="bg-blue-800 hover:bg-blue-600 text-white rounded-full px-4 py-2 text-base transition ease-in duration-300">
+                                Сохранить
+                            </button>
+                            <a href="{% url 'users:password_change' %}"
+                               class="bg-blue-800 hover:bg-blue-600 text-white rounded-full px-4 py-2 text-base text-center transition ease-in duration-300">
+                                Сменить пароль
+                            </a>
+                            <button id="statistics-button"
+                                    class="bg-blue-800 hover:bg-blue-600 text-white rounded-full px-4 py-2 text-base transition ease-in duration-300">
+                                Статистика
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <form method="post" class="mt-4 flex justify-center" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button
+                        class="bg-blue-800 hover:bg-blue-600 text-white rounded-full p-3 px-4 py-2 text-base transition ease-in duration-300">
+                    Выйти
+                </button>
+            </form>
+        </div>
+
+        <div class="relative bg-gray-800 border border-gray-800 shadow-lg rounded-2xl p-4">
+            <div class="statistics-block bg-white p-4 rounded-md border border-gray-300 absolute top-0 right-0 transition-transform duration-300 transform translate-x-full">
+                <a href="{% url 'about' %}" class="statistic-button block mb-2 hover:text-blue-600 transition-colors duration-300">Статистика заявок по месяцам</a>
+                <a href="{% url 'statistics' %}" class="statistic-button block hover:text-blue-600 transition-colors duration-300">Статистика по популярным услугам</a>
+            </div>
+
+            <div>
+                <h2 class="text-lg text-center mb-2 font-semibold text-gray-300">Ваши заявки</h2>
+                <div class="overflow-x-auto">
+                    {% if service_requests %}
+                    <table class="min-w-full shadow-md rounded-xl">
+                        <thead>
+                        <tr class="bg-gray-900 border border-gray-800 text-center text-white">
+                            <th class="py-2 px-2 text-left">Услуга</th>
+                            <th class="py-2 px-2 text-left">Участок</th>
+                            <th class="py-2 px-2 text-left">Цена</th>
+                            <th class="py-2 px-2 text-left">Статус</th>
+                            <th class="py-2 px-2 text-left">Причина отказа</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-gray-200">
+                            {% for request in service_requests|reverse %}
+                        <tr class="border-b border-gray-700">
+                            <td class="py-2 px-2">{{ request.service }}</td>
+                            <td class="py-2 px-2">{{ request.area }}</td>
+                            <td class="py-2 px-2">{{ request.total_price }}</td>
+                            <td class="py-2 px-2">{{ request.status }}</td>
+                            <td class="py-2 px-2">{{ request.rejection_reason }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-gray-200">Вы еще не делали заявку.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h2 class="text-lg text-center mb-2 font-semibold text-gray-300">Ваши отчеты</h2>
+                <div class="overflow-x-auto">
+                    {% if reports %}
+                    <table class="min-w-full shadow-md rounded-xl">
+                        <thead>
+                        <tr class="bg-gray-900 border border-gray-800 text-center text-white">
+                            <th class="py-2 px-2 text-left">Дата</th>
+                            <th class="py-2 px-2 text-left">Описание</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-gray-200">
+                        {% for report in reports %}
+                        <tr class="border-b border-gray-700">
+                            <td class="py-2 px-2">{{ report.date }}</td>
+                            <td class="py-2 px-2">{{ report.description }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-gray-200">У вас нет отчетов.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const statisticsButton = document.getElementById("statistics-button");
+        const statisticsBlock = document.querySelector(".statistics-block");
+
+        statisticsButton.addEventListener("click", function(event) {
+            event.preventDefault();
+            if (statisticsBlock.style.display === "none" || statisticsBlock.style.display === "") {
+                statisticsBlock.style.display = "block";
+            } else {
+                statisticsBlock.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Oswald;
+    scroll-behavior:smooth; 
+}
+body{
+    background-color: black;
+}
+.description-container {
+  max-height: 40px; /* Измените значение на желаемую высоту */
+  overflow: hidden;
+}
+
+.show-more {
+  cursor: pointer;
+  color: blue; /* Цвет для текста "Показать больше" */
+}
+
+.main-ph{
+    background: url('static/main/main-ph.png'), no-repeat;
+    height:78vh;
+}
+.main-ds{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.main-ds img{
+    padding-top: 15%;
+}
+.main-tx h1{
+    font-family: Seymour One;
+    font-size: 62px;
+    color: #C13E40;
+}
+.main-tx p{
+    font-size: 51px;
+    color: white;
+}
+.font{
+    font-family:Seymour One ;
+    color: #C13E40;
+}
+.tab-content {
+    display: none;
+}
+.active-tab {
+    display: block;
+}
+.tab-link {
+    /* Общие стили для всех вкладок */
+    padding: 1rem 1.5rem; /* px-6 py-3 */
+    width: 50%; /* w-1/2 */
+    justify-content: center; /* justify-center */
+    border-bottom: 2px solid; /* border-b-2 */
+    font-family:  sans-serif; /* title-font */
+    font-weight: 500; /* font-medium */
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase; /* tracking-wider */
+    color: white; /* text-white */
+}
+  
+@media (min-width: 640px) { /* sm: */
+    .tab-link {
+      width: auto; /* w-auto */
+      justify-content: flex-start; /* justify-start */
+    }
+}
+  
+.active {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  width: 50%; /* Занимает половину ширины контейнера */
+  @media (min-width: 640px) {
+    width: auto; /* На экранах от 640px ширина автоматически регулируется по содержимому */
+  }
+  text-align: center;
+  @media (min-width: 640px) {
+    text-align: left; /* На экранах от 640px текст выравнивается по левому краю */
+  }
+  border-bottom: 2px solid;
+  font-family: title-font; /* Шрифт, определенный в Tailwind CSS */
+  font-weight: 500;
+  background-color: #2d3748;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  border-color: #6f42c1;
+  color: #fff;
+  letter-spacing: 0.05em;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}

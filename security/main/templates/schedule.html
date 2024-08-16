@@ -1,0 +1,476 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block main_content %}
+
+<div class="flex flex-col md:flex-row justify-center gap-8 mx-auto py-8 bg-black text-white">
+    <!-- Форма добавления расписания -->
+    {% if user.is_chief_brigadier %}
+    <div class="text-center">
+        <h2 class="text-2xl font-semibold mb-4">Расписание работы бригады</h2>
+        <form id="scheduleForm" method="post" class="mb-8 custom-form" action="">
+            {% csrf_token %}
+            <label for="{{ schedule_form.start.id_for_label }}" class="block text-sm font-medium text-gray-400 mb-1">Начало
+                периода:</label>
+            <div class="relative rounded-md shadow-sm flex items-center">
+                <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                        </svg>
+                    </div>
+                    {{ schedule_form.start }}
+                </div>
+                <span class="mx-4 text-gray-500">по</span>
+                <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                        </svg>
+                    </div>
+                    {{ schedule_form.end }}
+                </div>
+            </div>
+            <label for="{{ schedule_form.brigade.id_for_label }}"
+                   class="block text-sm font-medium text-gray-400 mb-1">Бригада:</label>
+            <div class="relative rounded-md shadow-sm">
+                {{ schedule_form.brigade }}
+            </div>
+            <label for="{{ schedule_form.service_request.id_for_label }}"
+                   class="block text-sm font-medium text-gray-400 mb-1">Заявка на услугу:</label>
+            <div class="relative rounded-md shadow-sm">
+                {{ schedule_form.service_request }}
+            </div>
+            <label for="{{ schedule_form.assigned_member.id_for_label }}"
+                   class="block text-sm font-medium text-gray-400 mb-1">Назначенный работник:</label>
+            <div class="relative rounded-md shadow-sm">
+                {{ schedule_form.assigned_member }}
+            </div>
+            <label for="{{ schedule_form.task_description.id_for_label }}"
+                   class="block text-sm font-medium text-gray-400 mb-1">Описание задачи:</label>
+            <div class="relative rounded-md shadow-sm">
+                {{ schedule_form.task_description }}
+            </div>
+            <button type="submit"
+                    class="block m-auto bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:shadow-outline-green active:bg-green-800 transition duration-300">
+                Добавить расписание
+            </button>
+        </form>
+<!-- <form id="scheduleEntryForm" method="post" class="mb-8 custom-form bg-gray-800 p-4 rounded-lg" action="">-->
+<!--    {% csrf_token %}-->
+<!--    <table class="w-full border-collapse border border-gray-300">-->
+<!--        <thead>-->
+<!--            <tr class="bg-gray-700">-->
+<!--                <th class="px-2 py-2 border border-gray-300 text-gray-300">День</th>-->
+<!--                <th class="px-2 py-2 border border-gray-300 text-gray-300">Время начала</th>-->
+<!--                <th class="px-2 py-2 border border-gray-300 text-gray-300">Бригада</th>-->
+<!--                <th class="px-2 py-2 border border-gray-300 text-gray-300">Заявка на услугу</th>-->
+<!--                <th class="px-2 py-2 border border-gray-300 text-gray-300">Назначенные работники</th>-->
+<!--                <th class="px-2 py-2 border border-gray-300 text-gray-300">Описание задачи</th>-->
+<!--            </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--            {% for day in weekdays %}-->
+<!--            <tr class="text-white">-->
+<!--                <td class="px-2 py-2 border border-gray-300 bg-gray-600">-->
+<!--                    {{ day }}-->
+<!--                </td>-->
+<!--                <td class="px-2 py-2 border border-gray-300">-->
+<!--                    <input type="datetime-local" name="start" class="form-input rounded-md shadow-sm w-full bg-gray-700 text-white">-->
+<!--                </td>-->
+<!--                <td class="px-2 py-2 border border-gray-300">-->
+<!--                    <span name="brigade" class="form-select rounded-md shadow-sm w-full bg-gray-700 text-black">-->
+<!--                        {{ schedule_entry_form.brigade }}-->
+<!--                    </span>-->
+<!--                </td>-->
+<!--                <td class="px-2 py-2 border border-gray-300">-->
+<!--                    {{ schedule_entry_form.service_request }}-->
+<!--                </td>-->
+<!--                <td class="px-2 py-2 border border-gray-300">-->
+<!--                    {{ schedule_entry_form.assigned_members }}-->
+<!--                </td>-->
+<!--                <td class="px-2 py-2 border border-gray-300">-->
+<!--                    {{ schedule_entry_form.task_description }}-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            {% endfor %}-->
+<!--        </tbody>-->
+<!--    </table>-->
+<!--    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">-->
+<!--        Добавить записи-->
+<!--    </button>-->
+<!--</form>-->
+<!--        <table class="w-full border-collapse border border-gray-300">-->
+<!--    <thead>-->
+<!--        <tr class="bg-gray-200">-->
+<!--            <th class="px-4 py-2 border border-gray-300">Время начала</th>-->
+<!--            <th class="px-4 py-2 border border-gray-300">Бригада</th>-->
+<!--            <th class="px-4 py-2 border border-gray-300">Заявка на услугу</th>-->
+<!--            <th class="px-4 py-2 border border-gray-300">Назначенные работники</th>-->
+<!--            <th class="px-4 py-2 border border-gray-300">Описание задачи</th>-->
+<!--        </tr>-->
+<!--    </thead>-->
+<!--    <tbody>-->
+<!--        {% for entry in schedule_entries %}-->
+<!--        <tr>-->
+<!--            <td class="px-4 py-2 border border-gray-300">{{ entry.start }}</td>-->
+<!--            <td class="px-4 py-2 border border-gray-300">{{ entry.brigade }}</td>-->
+<!--            <td class="px-4 py-2 border border-gray-300">{{ entry.service_request }}</td>-->
+<!--            <td class="px-4 py-2 border border-gray-300">-->
+<!--                {% for member in entry.assigned_members.all %}-->
+<!--                {{ member.username }}{% if not forloop.last %}, {% endif %}-->
+<!--                {% endfor %}-->
+<!--            </td>-->
+<!--            <td class="px-4 py-2 border border-gray-300">{{ entry.task_description }}</td>-->
+<!--        </tr>-->
+<!--        {% endfor %}-->
+<!--    </tbody>-->
+<!--</table>-->
+    </div>
+    {% endif %}
+    <div class="flex justify-center items-center wrapper">
+        <div class="bg-gray-900 text-white p-8 rounded-lg shadow-xl">
+            <h3 class="text-3xl font-bold mb-4">Выберите бригаду и дату:</h3>
+            <form id="schedule-form" class="flex flex-col items-center justify-center space-y-4">
+                <label for="brigade" class="text-lg font-semibold text-gray-300">Выберите бригаду:</label>
+                <select name="brigade" id="brigade"
+                        class="rounded-lg border-gray-300 border px-4 py-2 bg-gray-800 text-gray-300 focus:outline-none focus:border-blue-500">
+                    {% for brigade in brigades %}
+                    <option value="{{ brigade.id_brigade }}">{{ brigade.name_brigade }}</option>
+                    {% endfor %}
+                </select>
+                <label for="selected_date" class="text-lg font-semibold text-gray-300">Выберите дату:</label>
+                <select name="selected_date" id="selected_date"
+                        class="rounded-lg border-gray-300 border px-4 py-2 bg-gray-800 text-gray-300 focus:outline-none focus:border-blue-500"></select>
+                <button type="button" id="show-schedule-button"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:bg-blue-600 transition duration-300">
+                    Показать расписание
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+<style>
+    #main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #chart-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 80%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    #chartdiv2 {
+        width: 80%;
+        height: 500px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #chart-description {
+        width: 20%;
+        padding: 20px;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        margin-right: 20px;
+    }
+
+    #chart-details {
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        color: #555;
+    }
+
+    #chart-title {
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    #chart-description h3 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+</style>
+<div class="text-center">
+    <h2 class="text-2xl font-semibold mb-4">Фильтрация данных для графика</h2>
+    <form action="" id="filterForm" class="flex items-center space-x-4">
+        <label for="brigade" class="block text-sm font-medium text-gray-400 mb-1">Выберите бригаду:</label>
+        <select name="brigade" id="brigade"
+                class="rounded-lg border-gray-300 border px-4 py-2 bg-gray-800 text-gray-300 focus:outline-none focus:border-blue-500">
+            {% for brigade in brigades %}
+            <option value="{{ brigade.id_brigade }}">{{ brigade.name_brigade }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" id="showChartButton"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Показать график
+        </button>
+    </form>
+</div>
+<div id="main-container">
+    <h2 id="chart-title" class="text-white mt-5">Топ работников по отработанным дням</h2>
+    <div id="chart-container" class="w-full bg-white p-8 rounded-lg shadow-lg">
+        <div id="chartdiv" class="w-full h-96 bg-white"></div>
+    </div>
+</div>
+<script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const brigadeSelect = document.getElementById('id_brigade');
+    const filterForm = document.getElementById('filterForm');
+
+    filterForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+
+        const selectedBrigadeId = brigadeSelect.value;
+        updateChart(selectedBrigadeId);
+    });
+
+function updateChart(brigadeId) {
+    console.log('Fetching data for brigade:', brigadeId);
+
+    fetch(`/get_filtered_data/?brigade=${brigadeId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Received data:', data); // Проверяем полученные данные
+            // Очищаем текущий график и обновляем данные
+            chart.data = data;
+
+            // Обновляем график
+            chart.invalidateData();
+        })
+        .catch(error => console.error('Error updating chart:', error));
+}
+    // Инициализация графика
+    var chart = am4core.create("chartdiv", am4charts.XYChart);
+    // Получаем данные для диаграммы
+    var data = [
+        {% for worker in top_workers %}
+        { name: "{{ worker.assigned_member__username }}", days: {{ worker.total_work_days }} },
+        {% endfor %}
+    ];
+
+    // Add data
+    chart.data = data;
+
+    // Create axes
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "name";
+    categoryAxis.renderer.grid.template.location = 0;
+    categoryAxis.renderer.minGridDistance = 30;
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+    // Настройка форматтера для оси Y
+    valueAxis.numberFormatter = new am4core.NumberFormatter();
+    valueAxis.numberFormatter.numberFormat = "#";
+
+    // Create series
+    var series = chart.series.push(new am4charts.ColumnSeries());
+    series.dataFields.valueY = "days";
+    series.dataFields.categoryX = "name";
+    series.name = "Отработанные дни";
+    series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+    series.columns.template.fillOpacity = 0.8;
+
+    var columnTemplate = series.columns.template;
+    columnTemplate.strokeWidth = 2;
+    columnTemplate.strokeOpacity = 1;
+
+    // Анимация
+    chart.appear();
+});
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const brigadeSelect = document.getElementById('id_brigade');
+        const serviceRequestSelect = document.getElementById('id_service_request');
+
+        brigadeSelect.addEventListener('change', function() {
+            const brigadeId = brigadeSelect.value;
+            fetch(`/get_service_requests/?brigade_id=${brigadeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    serviceRequestSelect.innerHTML = ''; // Clear the service request select
+                    data.service_requests.forEach(serviceRequest => {
+                        const option = document.createElement('option');
+                        option.value = serviceRequest.id;
+                        option.textContent = decodeURIComponent(serviceRequest.service__name_service); // Decode Unicode escape sequences
+                        serviceRequestSelect.appendChild(option);
+                    });
+                });
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const brigadeSelect = document.getElementById('brigade');
+        const dateSelect = document.getElementById('selected_date');
+        const showScheduleButton = document.getElementById('show-schedule-button');
+
+        function fetchAvailableDates(brigadeId) {
+            if (brigadeId) {
+                fetch(`/get_available_dates/?brigade=${brigadeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        dateSelect.innerHTML = ''; // Clear the date select
+                        data.available_dates.forEach(date => {
+                            const option = document.createElement('option');
+                            option.value = date;
+                            option.textContent = date;
+                            dateSelect.appendChild(option);
+                        });
+                    });
+            }
+        }
+
+        brigadeSelect.addEventListener('change', function() {
+            const brigadeId = brigadeSelect.value;
+            fetchAvailableDates(brigadeId);
+        });
+
+        showScheduleButton.addEventListener('click', function() {
+            const selectedBrigadeId = brigadeSelect.value;
+            const selectedDate = dateSelect.value;
+            window.location.href = `/display_schedule/?brigade=${selectedBrigadeId}&selected_date=${selectedDate}`;
+        });
+
+        const selectedBrigadeId = brigadeSelect.value;
+        fetchAvailableDates(selectedBrigadeId); // Fetch available dates when the page loads
+    });
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!--   Обработчик события изменения поля "Начало периода"-->
+<script>
+    $(document).ready(function() {
+
+        $('#id_start').on('change', function() {
+            // Получаем выбранную дату
+            var startDate = new Date($(this).val());
+
+            // Если дата выбрана корректно
+            if (!isNaN(startDate.getTime())) {
+                // Увеличиваем дату на 1 день
+                startDate.setDate(startDate.getDate() + 1);
+
+                // Форматируем дату в строку в формате YYYY-MM-DD
+                var nextDay = startDate.toISOString().split('T')[0];
+
+                // Устанавливаем полученное значение в поле "Конец периода"
+                $('#id_end').val(nextDay);
+            }
+        });
+    });
+</script>
+
+
+<!--Уведомлеия-->
+{% if messages %}
+<div id="notification"
+     class="animate animated animatefadeInUp fixed bottom-0 right-0 m-4 p-4 bg-green-100 border-t-4 border-green-500 rounded-b text-green-900 shadow-md">
+    {% for message in messages %}
+    <p class="font-bold">{{ message.tags|title }}</p>
+    <p class="text-sm">{{ message|title }}</p>
+    {% endfor %}
+</div>
+
+<script>
+    // Скрипт для автоматического скрытия уведомления через 5 секунд
+    setTimeout(function() {
+      var notification = document.getElementById('notification');
+      notification.classList.remove('animate__fadeInUp');
+      notification.classList.add('animate__fadeOutDown');
+      setTimeout(function() {
+        notification.style.display = 'none';
+      }, 1000); // Время анимации fadeOutDown
+    }, 5000);
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        // Обработчик клика на кнопках с датами
+        $('button[data-date]').on('click', function() {
+            var selectedDate = $(this).data('date');
+            loadSchedule(selectedDate);
+        });
+
+        // Обработчик клика на кнопках с бригадами
+        $('button[data-brigade]').on('click', function() {
+            var selectedBrigade = $(this).data('brigade');
+            loadSchedule(null, selectedBrigade);
+        });
+
+        // Функция для загрузки расписания с сервера
+        function loadSchedule(date, brigade) {
+            // Отправляем запрос на сервер, передавая выбранную дату и/или бригаду
+            // Реализуйте логику на сервере для возврата соответствующего расписания
+            $.ajax({
+                url: '/display_schedule/',  // Замените на URL вашего представления для получения расписания
+                method: 'GET',
+                data: {
+                    date: date,
+                    brigade: brigade
+                },
+                success: function(response) {
+                    // Обновляем расписание на странице
+                    // Реализуйте логику обновления расписания на основе полученного ответа
+                    console.log(response);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('.brigade-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const brigadeId = this.getAttribute('data-brigade');
+            const currentDate = '2024-02-25';  // Замените на актуальную дату
+            window.location.href = `/display_schedule/${currentDate}/?brigade=${brigadeId}`;
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#id_brigade').change(function() {
+            var brigadeId = $(this).val();
+            $.ajax({
+                url: '/get_brigade_members/',
+                type: 'GET',
+                data: {'brigade_id': brigadeId},
+                success: function(data) {
+                    var assignedMemberSelect = $('#id_assigned_member');
+                    assignedMemberSelect.empty();
+                    $.each(data.members, function(key, value) {
+                        assignedMemberSelect.append('<option value="' + key + '">' + value + '</option>');
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,173 @@
+<!-- main_page.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block main_content %}
+<div class="min-h-screen bg-gray-900 pt-5">
+    <div class="mx-auto flex flex-col md:flex-row justify-center">
+        <div class="bg-gray-800 border border-gray-800 shadow-lg rounded-2xl p-4 w-full md:w-1/2 mb-4 md:mb-0">
+            <div class="grid gap-5 text-white">
+                <h1 class="text-3xl">{{ service.name_service }}</h1>
+                <p class="text-xl">{{ service.description }}</p>
+            </div>
+
+            <div class="w-300 p-4 block m-auto">
+                <div class="bg-gray-900 border border-gray-800 shadow-lg rounded-2xl p-4">
+                    <form method="post" action="{% url 'submit_service_request' %}" class="grid grid-cols-2 gap-4">
+                        {% csrf_token %}
+                        <div>
+                            <label for="{{ form.service.id_for_label }}" class="text-white">{{ form.service.label }}</label>
+                            {{ form.service }}
+                        </div>
+                        <div>
+                            <label for="{{ form.area.id_for_label }}" class="text-white">{{ form.area.label }}</label>
+                            {{ form.area }}
+                        </div>
+                        <div>
+                            <label for="{{ form.address.id_for_label }}" class="text-white">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            <div id="suggestions" class="bg-gray-900 border border-gray-800 rounded p-2 mt-2 max-h-48 overflow-auto hidden"></div>
+                        </div>
+                        <div>
+                            <label for="{{ form.date_start.id_for_label }}" class="text-white">{{ form.date_start.label }}</label>
+                            {{ form.date_start }}
+                        </div>
+                        <div>
+                            <label for="{{ form.duration.id_for_label }}" class="text-white">{{ form.duration.label }}</label>
+                            {{ form.duration }}
+                        </div>
+                        <div class="col-span-2">
+                            <label for="{{ form.comments.id_for_label }}" class="text-white">{{ form.comments.label }}</label>
+                            {{ form.comments }}
+                        </div>
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}" class="text-white">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}" class="text-white">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                        </div>
+                        <input type="hidden" name="service_request_id" value="{{ service_request.id }}">
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="text-white">{{ form.email.label }}</label>
+                            {{ form.email }}
+                        </div>
+                        <div>
+                            <label for="{{ form.phone_number.id_for_label }}" class="text-white">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}
+                        </div>
+                        <div>
+                            <label for="{{ form.alarm_system.id_for_label }}" class="text-white">{{ form.alarm_system.label }}</label>
+                            {{ form.alarm_system }}
+                        </div>
+                        <div class="col-span-2">
+                            <label for="{{ form.total_price.id_for_label }}" class="text-white">{{ form.total_price.label }}</label>
+                            <span id="calculated_price" class="text-white">{{ form.total_price.value }}</span>
+                        </div>
+                        <div class="col-span-2 flex justify-center">
+                            <button type="submit" class="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline">Оплатить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://api-maps.yandex.ru/2.1/?apikey=6e4d4a82-bb42-4fe5-95f3-3c62ef30d280&lang=ru_RU" type="text/javascript"></script>
+<script type="text/javascript">
+    ymaps.ready(init);
+
+    function init() {
+        var addressInput = document.getElementById('{{ form.address.id_for_label }}');
+        var suggestionsContainer = document.getElementById('suggestions');
+
+        addressInput.addEventListener('input', function() {
+            var query = addressInput.value;
+            if (query.length > 2) {
+                ymaps.geocode(query, {
+                    results: 5,
+                    boundedBy: [[41.185260, 19.641156], [81.858144, 170.341214]], // Координаты границ России
+                    strictBounds: true
+                }).then(function(res) {
+                    suggestionsContainer.innerHTML = '';
+                    var geoObjects = res.geoObjects.toArray();
+                    geoObjects.forEach(function(geoObject) {
+                        var addressLine = geoObject.getAddressLine();
+                        var suggestion = document.createElement('div');
+                        suggestion.textContent = addressLine;
+                        suggestion.classList.add('suggestion');
+                        suggestion.classList.add('bg-gray-700', 'hover:bg-gray-600', 'p-2', 'rounded', 'cursor-pointer', 'text-white');
+                        suggestion.addEventListener('click', function() {
+                            addressInput.value = addressLine;
+                            suggestionsContainer.innerHTML = '';
+                            suggestionsContainer.classList.add('hidden');
+                        });
+                        suggestionsContainer.appendChild(suggestion);
+                    });
+                    suggestionsContainer.classList.remove('hidden');
+                });
+            } else {
+                suggestionsContainer.classList.add('hidden');
+            }
+        });
+
+        addressInput.addEventListener('blur', function() {
+            setTimeout(function() {
+                suggestionsContainer.classList.add('hidden');
+            }, 100);
+        });
+    }
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        function updatePrice() {
+            var service = $('#id_service').val();
+            var duration = $('#id_duration').val();
+            var hasAlarmSystem = $('#id_alarm_system').is(':checked');
+
+            $.ajax({
+                url: "{% url 'get_price' %}",
+                data: {
+                    'id_service': service,
+                    'duration': duration,
+                    'has_alarm_system': hasAlarmSystem ? 'True' : 'False',
+                },
+                dataType: 'json',
+                success: function(data) {
+                    $('#calculated_price').text(data.total_price);
+                }
+            });
+        }
+
+        $('#id_service, #id_duration, #id_alarm_system').change(updatePrice);
+
+        updatePrice();
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#phone_number_input').inputmask("+7 (999) 999-9999");
+    });
+</script>
+{% if messages %}
+<div id="notification" class="animate__animated animate__fadeInUp fixed bottom-0 right-0 m-4 p-4 bg-green-100 border-t-4 border-green-500 rounded-b text-green-900 shadow-md">
+    {% for message in messages %}
+    <p class="font-bold">{{ message.tags|title }}</p>
+    <p class="text-sm">{{ message|title }}</p>
+    {% endfor %}
+</div>
+<script>
+    setTimeout(function() {
+        var notification = document.getElementById('notification');
+        notification.classList.remove('animate__fadeInUp');
+        notification.classList.add('animate__fadeOutDown');
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 1000);
+    }, 5000);
+</script>
+{% endif %}
+{% endblock %}

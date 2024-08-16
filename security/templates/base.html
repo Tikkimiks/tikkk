@@ -1,0 +1,188 @@
+{% load static %}
+{% block scripts %}
+{{ block.super }}
+{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'main/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Seymour+One&display=swap"
+          rel="stylesheet">
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+
+    <!-- Подключение AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+<style>
+    .wrapper {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content {
+        flex-grow: 1;
+    }
+
+    footer {
+        margin-top: auto;
+        background-color: #333;
+        color: #fff;
+        padding: 20px 0;
+    }
+</style>
+<header class="text-gray-300 bg-gray-900 body-font">
+    <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+        <!-- Ваш код с кнопкой для мобильного меню и логотипом -->
+        <button class="md:hidden rounded-lg focus:outline-none focus:bg-gray-800 p-2" id="burger-menu">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
+                 stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-purple-500 rounded-full"
+                 viewBox="0 0 24 24">
+                <path d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+        </button>
+        <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0">
+            <span class="ml-3 text-xl">Беркут</span>
+        </a>
+        <!-- Навигационное меню -->
+        <nav class="hidden md:ml-auto md:flex flex-wrap items-center justify-center" id="nav-menu">
+            <a href="{% url 'home' %}" class="mr-5 hover:text-white">Главная</a>
+            <a href="{% url 'about' %}" class="mr-5 hover:text-white">О нас</a>
+            <a href="{% url 'about_projects' %}" class="mr-5 hover:text-white">О проекте</a>
+            <a href="{% url 'home' %}#service" class="mr-5 hover:text-white">Услуги</a>
+            <a href="{% url 'brigade' %}" class="mr-5 hover:text-white">Бригада</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'display_schedule' %}" class="mr-5 hover:text-white">Расписание</a>
+
+            {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="mr-5 hover:text-white">Админ-панель</a>
+            {% else %}
+            <a href="{% url 'users:profile' %}" class="mr-5 hover:text-white">Личный кабинет</a>
+            {% if user_brigades.exists %} <!-- Проверка на наличие бригад -->
+            {% endif %}
+            {% endif %}
+            {% else %}
+            <a href="{% url 'users:login' %}" class="mr-5 hover:text-white">Войти</a>
+            {% endif %}
+        </nav>
+    </div>
+    <!-- Мобильное меню -->
+    <div class="md:hidden w-full" id="mobile-menu" style="display: none;">
+        <nav class="flex flex-col text-base justify-center bg-gray-800">
+            <a href="{% url 'home' %}" class="p-3 hover:text-white">Главная</a>
+            <a href="{% url 'about' %}" class="p-3 hover:text-white">О нас</a>
+            <a href="{% url 'about_projects' %}" class="p-3 hover:text-white">О проекте</a>
+            <a href="{% url 'home' %}#service" class="p-3 hover:text-white">Услуги</a>
+            <a href="{% url 'brigade' %}" class="p-3 hover:text-white">Бригада</a>
+            {% if user.is_authenticated %}
+            {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="p-3 hover:text-white">Админ-панель</a>
+            {% else %}
+            <a href="{% url 'users:profile' %}" class="p-3 hover:text-white">Личный кабинет</a>
+            {% if user_brigades.exists %} <!-- Проверка на наличие бригад -->
+            <a href="{% url 'schedule' %}" class="p-3 hover:text-white">Расписание</a>
+            {% endif %}
+            {% endif %}
+            {% else %}
+            <a href="{% url 'users:login' %}" class="p-3 hover:text-white">Войти</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+{% block main_content %} {% endblock %}
+<footer class="text-gray-400 bg-gray-900 body-font">
+    <div
+            class="container px-5  py-24 mx-auto flex md:items-center lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
+        <div class="w-64 flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
+            <a class="flex title-font font-medium items-center md:justify-start justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
+                     stroke-linejoin="round" stroke-width="2"
+                     class="w-10 h-10 text-white p-2 bg-purple-500 rounded-full"
+                     viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="ml-3 text-xl">Беркут</span>
+            </a>
+            <p class="mt-2 text-sm text-gray-500">С нами - ваше безопасное будущее!</p>
+        </div>
+        <div class="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10 md:text-left text-center">
+            <div class="lg:w-1/4 md:w-1/2 w-full px-4">
+                <nav class="list-none mb-10">
+                    <li>
+                        <a href="{% url 'home' %}" class="text-gray-400 hover:text-white">Главная</a>
+                    </li>
+                </nav>
+            </div>
+            <div class="lg:w-1/4 md:w-1/2 w-full px-4">
+                <nav class="list-none mb-10">
+                    <li>
+                        <a href="{% url 'about' %}" class="text-gray-400 hover:text-white">О нас</a>
+                    </li>
+
+                </nav>
+            </div>
+            <div class="lg:w-1/4 md:w-1/2 w-full px-4">
+                <nav class="list-none mb-10">
+                    <li>
+                        <a href="{% url 'home'%}#service" class="text-gray-400 hover:text-white">Услуги</a>
+                    </li>
+
+                </nav>
+            </div>
+            <div class="lg:w-1/4 md:w-1/2 w-full px-4">
+                <nav class="list-none mb-10">
+                    <li>
+                        <a class="text-gray-400 hover:text-white">Телефон</a>
+                    </li>
+                    <li>
+                        <a class="text-gray-100 hover:text-white">8 (800) 555 35-35</a>
+                    </li>
+                    <li>
+                        <a class="text-gray-400 hover:text-white">Почта</a>
+                    </li>
+                    <li>
+                        <a class="text-gray-100 hover:text-white">test@mail.ru</a>
+                    </li>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <div class="bg-gray-800 bg-opacity-75">
+        <div class="container mx-auto py-4 px-5 flex flex-wrap flex-col sm:flex-row">
+            <p class="text-gray-400 text-sm text-center sm:text-left">© 2024 Все права защищены
+            </p>
+            <span class="inline-flex sm:ml-auto sm:mt-0 mt-2 justify-center sm:justify-start">
+
+        </span>
+        </div>
+    </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+<script src="{% static 'main/main.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const burgerMenu = document.getElementById('burger-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        burgerMenu.addEventListener('click', function () {
+            mobileMenu.style.display = mobileMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Инициализация AOS
+        AOS.init();
+    });
+</script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+</body>
+</html>

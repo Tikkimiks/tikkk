@@ -1,0 +1,53 @@
+    {% extends 'base.html' %}
+    {% load static %}
+    {% block main_content%}
+
+<div class="min-h-screen bg-gray-900 pt-5">
+    <div class="mx-auto flex flex-col md:flex-row justify-center">
+        <div class="bg-gray-800 text-white border border-gray-800 shadow-lg rounded-2xl p-4 w-full md:w-1/2 md:mb-0">
+            <form method="get" class="mb-4">
+                <label for="serviceRequest" class="block text-white mb-2">Выберите заявку:</label>
+                <select name="service_request" id="serviceRequest" class="appearance-none block w-full bg-gray-700 border border-gray-800 text-white py-2 px-4 pr-8 rounded shadow leading-tight focus:outline-none focus:border-gray-500">
+                    <option value="">Выберите заявку</option>
+                    {% for request in service_requests %}
+                    <option value="{{ request.id }}">{{ request.service }} - {{ request.date_start }} ({{ request.user.username }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded mt-2">Выбрать</button>
+            </form>
+
+            {% if selected_service_request %}
+            <p class="text-white mb-4">Выбранная заявка: {{ selected_service_request.service }} - {{ selected_service_request.date_start }} ({{ selected_service_request.user.username }})</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="service_request" value="{{ selected_service_request.id }}">
+                {{ report_form.as_p }}
+                <div class="col-span-2 flex justify-center pt-4">
+                    <button type="submit" class="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline">Отправить отчёт</button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+    {% if messages %}
+    <div id="notification"
+         class="animateanimated animatefadeInUp fixed bottom-0 right-0 m-4 p-4 bg-green-100 border-t-4 border-green-500 rounded-b text-green-900 shadow-md">
+        {% for message in messages %}
+        <p class="font-bold">{{ message.tags|title }}</p>
+        <p class="text-sm">{{ message|title }}</p>
+        {% endfor %}
+    </div>
+    <script>
+        // Скрипт для автоматического скрытия уведомления через 5 секунд
+        setTimeout(function() {
+          var notification = document.getElementById('notification');
+          notification.classList.remove('animate__fadeInUp');
+          notification.classList.add('animate__fadeOutDown');
+          setTimeout(function() {
+            notification.style.display = 'none';
+          }, 1000); // Время анимации fadeOutDown
+        }, 5000);
+    </script>
+    {% endif %}
+    {% endblock %}

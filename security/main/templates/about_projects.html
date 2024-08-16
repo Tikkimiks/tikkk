@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block main_content %}
+
+<!-- Main Content -->
+<div class="container mx-auto p-8 space-y-16">
+
+    <!-- Project Theme -->
+    <div class="bg-gray-900 shadow-lg rounded-lg p-8 text-center text-white fade-in">
+        <h2 class="text-4xl font-bold mb-4">Проектирование и разработка веб-приложения по обслуживанию охранного предприятия</h2>
+    </div>
+
+    <!-- Domain Analysis -->
+<div class="bg-gray-800 shadow-lg rounded-lg p-12 relative flex flex-col space-y-10 text-white slide-in">
+    <div class="w-full">
+        <h2 class="text-4xl font-semibold mb-6 border-b-2 border-indigo-500 pb-4">Анализ ПО</h2>
+        <p class="leading-relaxed text-2xl">
+            Я выбрал тему "Проектирование и разработка веб-приложения по обслуживанию охранного предприятия" из-за ее актуальности и перспективности в современном мире. В современной ситуации охрана и безопасность становятся все более важными аспектами деятельности различных предприятий и организаций. Разработка веб-приложения в этой области обеспечивает возможность автоматизировать работу охранного предприятия.
+        </p>
+    </div>
+</div>
+
+
+
+    <style>
+        .bg-black {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .card:hover .bg-black {
+            opacity: 0.75;
+        }
+        .card:hover .text-overlay {
+            opacity: 1;
+        }
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+        .slide-in {
+            transform: translateX(-100%);
+            animation: slideIn 1s forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <div class="bg-black shadow-lg rounded-lg p-8 text-white fade-in">
+        <h2 class="text-3xl font-semibold mb-4">Технические средства</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="relative">
+                <div class="card bg-gray-700 w-full p-20 rounded-lg text-center">
+                    <div class="bg-cover bg-center bg-no-repeat w-full h-full absolute top-0 left-0 rounded-lg transition-opacity duration-300 ease-in-out" style="background-image: url('/static/main/html.jpg');"></div>
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-50 rounded-lg transition-opacity duration-300 ease-in-out"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center opacity-0 text-overlay">
+                        <h3 class="text-xl font-semibold">HTML5</h3>
+                        <p class="mt-2">Используется для создания структурированной разметки веб-страниц.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка 2 -->
+            <div class="relative">
+                <div class="card bg-gray-700 w-full p-20 rounded-lg text-center">
+                    <div class="bg-cover bg-center bg-no-repeat w-full h-full absolute top-0 left-0 rounded-lg transition-opacity duration-300 ease-in-out" style="background-image: url('/static/main/tailwind-thumb.jpg');"></div>
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-50 rounded-lg transition-opacity duration-300 ease-in-out"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center opacity-0 text-overlay">
+                        <h3 class="text-xl font-semibold">Tailwind CSS</h3>
+                        <p class="mt-2">Утилитарный CSS-фреймворк для быстрой и эффективной разработки интерфейсов.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка 3 -->
+            <div class="relative">
+                <div class="card bg-gray-700 w-full p-20 rounded-lg text-center">
+                    <div class="bg-cover bg-center bg-no-repeat w-full h-full absolute top-0 left-0 rounded-lg transition-opacity duration-300 ease-in-out" style="background-image: url('/static/main/css.png');"></div>
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-50 rounded-lg transition-opacity duration-300 ease-in-out"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center opacity-0 text-overlay">
+                        <h3 class="text-xl font-semibold">CSS3</h3>
+                        <p class="mt-2">Используется для стилизации веб-страниц и создания адаптивного дизайна.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка 4 -->
+            <div class="relative">
+                <div class="card bg-gray-700 w-full p-20 rounded-lg text-center">
+                    <div class="bg-cover bg-center bg-no-repeat w-full h-full absolute top-0 left-0 rounded-lg transition-opacity duration-300 ease-in-out" style="background-image: url('/static/main/js.png');"></div>
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-50 rounded-lg transition-opacity duration-300 ease-in-out"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center opacity-0 text-overlay">
+                        <h3 class="text-xl font-semibold">JavaScript</h3>
+                        <p class="mt-2">Современный язык программирования для динамического взаимодействия на веб-страницах.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка 5 -->
+            <div class="relative">
+                <div class="card bg-gray-700 w-full p-20 rounded-lg text-center">
+                    <div class="bg-cover bg-center bg-no-repeat w-full h-full absolute top-0 left-0 rounded-lg transition-opacity duration-300 ease-in-out" style="background-image: url('/static/main/django.jpg');"></div>
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-50 rounded-lg transition-opacity duration-300 ease-in-out"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center opacity-0 text-overlay">
+                        <h3 class="text-xl font-semibold">Django</h3>
+                        <p class="mt-2">Мощный фреймворк для быстрой разработки веб-приложений на языке Python.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div class="card bg-gray-700 w-full p-20 rounded-lg text-center">
+                    <div class="bg-cover bg-center bg-no-repeat w-full h-full absolute top-0 left-0 rounded-lg transition-opacity duration-300 ease-in-out" style="background-image: url('/static/main/sqlite.png');"></div>
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-50 rounded-lg transition-opacity duration-300 ease-in-out"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center opacity-0 text-overlay">
+                        <h3 class="text-xl font-semibold">SQLite</h3>
+                        <p class="mt-2">Компактная и простая в использовании система управления базами данных.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="flex justify-center items-center fade-in">
+    <div class="bg-black rounded-lg p-12 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-transform text-white">
+        <h2 class="text-3xl font-semibold mb-8 text-center">Основные Цвета Сайта</h2>
+        <div class="grid grid-cols-3 gap-8">
+            <div class="rounded-full bg-blue-950 w-32 h-32 flex items-center justify-center text-lg font-semibold">Синий</div>
+            <div class="rounded-full bg-gray-600 w-32 h-32 flex items-center justify-center text-lg font-semibold">Серый</div>
+            <div class="rounded-full bg-black w-32 h-32 border border-white flex items-center justify-center text-lg font-semibold">Черный</div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-gray-800 shadow-lg rounded-lg p-10 mt-10 relative text-white slide-in">
+    <div class="w-full">
+        <h2 class="text-4xl font-semibold mb-6">Роли на сайте</h2>
+        <p class="leading-relaxed text-lg mb-6">
+            На сайте присутствуют следующие роли:
+        </p>
+        <div class="flex justify-around space-x-8">
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span class="text-xl mt-2">Гость</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm9-1h2v2h-2v-2zm0-2h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>
+                <span class="text-xl mt-2">Клиент</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-yellow-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm6-1v-1h4v1h-4zm0-4v-1h4v1h-4zm0 2v-1h4v1h-4z"/></svg>
+                <span class="text-xl mt-2">Член бригады</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm6 1v-1h2v1h-2zm0 2v-1h2v1h-2zm0-4v-1h2v1h-2z"/></svg>
+                <span class="text-xl mt-2">Главный бригадир</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm6 1v-1h2v1h-2zm0 2v-1h2v1h-2zm0-4v-1h2v1h-2zm0-2v-1h2v1h-2z"/></svg>
+                <span class="text-xl mt-2">Администратор</span>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Economic Efficiency Section -->
+    <div class="bg-gray-900 shadow-lg rounded-lg p-8 text-white fade-in">
+        <h2 class="text-3xl font-semibold mb-4">Экономическая эффективность</h2>
+        <div class="relative overflow-x-auto">
+            <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden text-lg">
+                <thead>
+                    <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
+                        <th class="py-4 px-6 text-left">Показатель</th>
+                        <th class="py-4 px-6 text-right">Величина</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300 text-2sm">
+                    <tr class="border-b border-gray-600 hover:bg-gray-700">
+                        <td class="py-4 px-6 text-left">Трудозатраты на разработку проекта, чел*час</td>
+                        <td class="py-4 px-6 text-right">245</td>
+                    </tr>
+                    <tr class="border-b border-gray-600 hover:bg-gray-700">
+                        <td class="py-4 px-6 text-left">Затраты на разработку проекта, руб.</td>
+                        <td class="py-4 px-6 text-right">212776</td>
+                    </tr>
+                    <tr class="border-b border-gray-600 hover:bg-gray-700">
+                        <td class="py-4 px-6 text-left">Экономическая эффективность проекта, руб.</td>
+                        <td class="py-4 px-6 text-right">289416</td>
+                    </tr>
+                    <tr class="border-b border-gray-600 hover:bg-gray-700">
+                        <td class="py-4 px-6 text-left">Коэффициент экономической эффективности</td>
+                        <td class="py-4 px-6 text-right">1,4</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700">
+                        <td class="py-4 px-6 text-left">Срок окупаемости, мес.</td>
+                        <td class="py-4 px-6 text-right">8</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Styles and Script -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+    .hero {
+        background-image: url('https://via.placeholder.com/1500x500');
+        background-size: cover;
+        background-position: center;
+        height: 75vh;
+    }
+    .card {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
