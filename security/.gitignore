@@ -5,7 +5,7 @@
 __pycache__
 db.sqlite3
 media
-README.md
+tailwind/node_modules/any-promise/README.md
 # Backup files #
 *.bak
 
