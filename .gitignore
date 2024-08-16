@@ -3,7 +3,7 @@
 *.pot
 *.pyc
 __pycache__
-db.sqlite3
+security/db.sqlite3
 media
 tailwind/node_modules/any-promise/README.md
 # Backup files #
