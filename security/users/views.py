@@ -2,14 +2,16 @@ import uuid
 
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.db.models import F
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from django.contrib.auth import authenticate, login, logout, get_user_model
 
 from main.models import ServiceRequest, Report, NotificationSubscription, MemberBrigade
+from main.permissions import is_employee
 from django.contrib import messages
 # from main import bot
 
@@ -117,8 +119,11 @@ class ResetPassword(PasswordResetView):
         return response
 
 
+@login_required
 def get_request(request, request_id):
     service_request = get_object_or_404(ServiceRequest, id=request_id)
+    if not is_employee(request.user) and service_request.user != request.user:
+        return HttpResponseForbidden()
     # Assume report_data is a dictionary containing the report data
     report_data = {
         'service': service_request.service,
@@ -128,9 +133,12 @@ def get_request(request, request_id):
     return JsonResponse(report_data)
 
 
+@login_required
 def get_report(request, report_id):
     # Получим отчет по его ID или вернем 404, если отчет не найден
     report = get_object_or_404(Report, id=report_id)
+    if report.service_request and not is_employee(request.user) and report.service_request.user != request.user:
+        return HttpResponseForbidden()
 
     # Теперь вы можете передать данные отчета в шаблон или просто вернуть JSON-ответ
     response_data = {

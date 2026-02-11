@@ -4,7 +4,6 @@ import logging
 from io import BytesIO
 from decimal import Decimal
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 
 from django.contrib.auth import get_user_model
 from reportlab.lib.pagesizes import letter
@@ -12,7 +11,7 @@ from .forms import ServiceRequestForm, ContactForm, ReportForm, ScheduleForm, Br
 from django.http import JsonResponse
 from .models import Service, Tariff, ScheduleEntry, MemberBrigade, ScheduleMember
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Sum, Count
 from .models import ServiceRequest, Brigade
 from .forms import ReportForm, ScheduleForm, BrigadeSelectionForm
@@ -20,7 +19,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.http import HttpResponseForbidden
-from django.contrib.auth.models import User
+from .permissions import is_employee
 from .models import Report, Schedule
 import json
 from .models import Receipt
@@ -39,6 +38,13 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 import os
+
+
+def employee_required(view_func):
+    return user_passes_test(is_employee)(view_func)
+
+
+User = get_user_model()
 
 
 def about(request):
@@ -89,6 +95,7 @@ def register(request):
     return render(request, 'users/register.html')
 
 
+@employee_required
 def get_report(request, report_id):
     report = get_object_or_404(Report, id=report_id)
     return render(request, 'users/profile.html', {'report': report})
@@ -135,12 +142,6 @@ def get_service_requests_stats():
     total_amount = ServiceRequest.objects.aggregate(Sum('total_price'))['total_price__sum'] or 0
 
     return {'total_requests': total_requests, 'total_amount': total_amount}
-
-
-def view_service_request(request, request_id):
-    service_request = ServiceRequest.objects.get(pk=request_id)
-    context = {'service_request': service_request}
-    return render(request, 'service_page.html', context)
 
 
 logger = logging.getLogger(__name__)
@@ -295,22 +296,6 @@ def generate_pdf_from_receipt(receipt):
     return pdf_buffer.getvalue()
 
 
-# Пример использования
-class MockReceipt:
-    def __init__(self):
-        self.date_receipt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.total_amount = 8845.00
-        self.services = "Услуга 1"
-
-
-receipt = MockReceipt()
-pdf_data = generate_pdf_from_receipt(receipt)
-
-# Сохранение PDF для проверки
-with open("receipt.pdf", "wb") as f:
-    f.write(pdf_data)
-
-
 def send_email_with_attachment(receipt_id, recipient_email):
     try:
         receipt = Receipt.objects.get(pk=receipt_id)
@@ -350,6 +335,7 @@ def calculate_price(id_service, duration_tariff, has_alarm_system):
     return total_price
 
 
+@employee_required
 def schedule(request):
     brigades = Brigade.objects.all()
 
@@ -411,6 +397,7 @@ def schedule(request):
 from .models import Event
 
 
+@employee_required
 def add_event(request):
     title = request.POST.get('title')
     start = request.POST.get('start')
@@ -422,6 +409,7 @@ def add_event(request):
     return JsonResponse({'id': event.id, 'title': event.title, 'start': event.start})
 
 
+@employee_required
 def save_event(request):
     event_id = request.POST.get('id')
     title = request.POST.get('title')
@@ -435,6 +423,7 @@ def save_event(request):
     return JsonResponse({'id': event.id, 'title': event.title, 'start': event.start})
 
 
+@employee_required
 def schedule_view(request):
     # Получаем все уникальные месяцы из полей start и end
     start_months = Schedule.objects.annotate(month=ExtractMonth('start')).values_list('month', flat=True)
@@ -451,6 +440,7 @@ def schedule_view(request):
     return render(request, 'schedule.html', context)
 
 
+@employee_required
 def get_filtered_data(request):
     brigade_id = request.GET.get('brigade')
 
@@ -519,10 +509,9 @@ def brigade_page(request):
     if brigade:
         members = MemberBrigade.objects.filter(brigade=brigade).select_related('user')
         for member in members:
-            is_occupied = ServiceRequest.objects.filter(
-                assigned_team=brigade,
-                members__user=member.user,
-                schedule__date=current_date
+            is_occupied = ScheduleMember.objects.filter(
+                user=member.user,
+                date=current_date
             ).exists()
             members_info.append({
                 'username': member.user.username,
@@ -542,6 +531,7 @@ def brigade_page(request):
 
 
 
+@employee_required
 def get_service_requests(request):
     if request.method == 'GET':
         brigade_id = request.GET.get('brigade_id')
@@ -553,7 +543,7 @@ def get_service_requests(request):
                 return JsonResponse({'error': 'Идентификатор бригады должен быть целым числом.'}, status=400)
 
             # Извлекаем данные из базы данных, включая имя услуги
-            service_requests = ServiceRequest.objects.filter(brigade_id=brigade_id).values(
+            service_requests = ServiceRequest.objects.filter(assigned_team_id=brigade_id).values(
                 'id',
                 'service__name_service'  # Обращаемся к полю name_service в связанной модели Service
             )
@@ -573,11 +563,13 @@ def get_service_requests(request):
     return JsonResponse({'error': 'Метод запроса не поддерживается.'}, status=405)
 
 
+@employee_required
 def get_members_for_brigade(request, brigade_id):
     members = User.objects.filter(memberbrigade__brigade_id=brigade_id).values('id', 'username')
     return JsonResponse(list(members), safe=False)
 
 
+@employee_required
 def get_schedule(request):
     brigades = Brigade.objects.all()
 
@@ -608,6 +600,7 @@ def get_schedule(request):
     return render(request, 'schedule.html', context)
 
 
+@employee_required
 def recommend_brigades(request):
     if request.method == 'POST':
         form = ServiceRequestForm(request.POST)
@@ -627,18 +620,26 @@ def recommend_brigades(request):
     return render(request, 'recommend_brigades.html', {'form': form})
 
 
+@employee_required
 def assign_brigade(request, request_id, brigade_id):
     service_request = get_object_or_404(ServiceRequest, pk=request_id)
     brigade = get_object_or_404(Brigade, pk=brigade_id)
     service_request.assigned_team = brigade
     service_request.save()
 
-    return redirect('service_request_detail', pk=request_id)
+    return redirect('display_schedule')
 
 
 def payment(request):
     context = {}  # Можно добавить контекстные данные, если необходимо
     return render(request, 'payment.html', context)
+
+
+@login_required
+@require_POST
+def process_payment(request):
+    messages.success(request, 'Payment accepted (demo).')
+    return redirect('home')
 
 
 def view_service_request(request, request_id):
@@ -651,6 +652,7 @@ from django.utils import timezone
 
 
 @login_required
+@employee_required
 def display_schedule(request):
     current_date = timezone.now().date()
     user = request.user
@@ -682,6 +684,7 @@ def display_schedule(request):
     }
     return render(request, 'display_schedule.html', context)
 
+@employee_required
 def get_available_dates(request):
     id_brigade = request.GET.get('brigade')
     if id_brigade:
@@ -691,41 +694,49 @@ def get_available_dates(request):
     return JsonResponse({'error': 'Brigade ID is required'}, status=400)
 
 
-User = get_user_model()
-
+@employee_required
 def get_brigade_members(request):
-    current_user = request.user
     date = request.GET.get('date')
     request_id = request.GET.get('request_id')
-    
-    if not date or not request_id:
-        return JsonResponse({'error': 'Date and request ID are required'}, status=400)
+    brigade_id = request.GET.get('brigade_id')
 
-    try:
-        brigade = current_user.leader_of_brigades.get()
-    except MemberBrigade.DoesNotExist:
-        return JsonResponse({'error': 'User is not a chief of any brigade'}, status=403)
+    if request_id:
+        if not date:
+            return JsonResponse({'error': 'Date is required'}, status=400)
 
-    members = MemberBrigade.objects.filter(brigade=brigade).select_related('user')
-    data = []
+        service_request = get_object_or_404(ServiceRequest, pk=request_id)
+        brigade = service_request.assigned_team
+        if not brigade:
+            return JsonResponse({'members': []})
 
-    for member in members:
-        is_member_added = ScheduleMember.objects.filter(user=member.user, date=date, service_request_id=request_id).exists()
-        is_occupied = ServiceRequest.objects.filter(members__user=member.user, schedule__date=date).exists()
-        data.append({
-            'id': member.user.id,
-            'username': member.user.username,
-            'brigade': {
-                'id': brigade.id,
-                'name_brigade': brigade.name_brigade
-            },
-            'is_member_added': is_member_added,
-            'is_occupied': is_occupied
-        })
+        members = MemberBrigade.objects.filter(brigade=brigade).select_related('user')
+        data = []
+        for member in members:
+            is_member_added = ScheduleMember.objects.filter(
+                user=member.user, date=date, service_request_id=request_id
+            ).exists()
+            is_occupied = ScheduleMember.objects.filter(user=member.user, date=date).exists()
+            data.append({
+                'id': member.user.id,
+                'username': member.user.username,
+                'brigade': {
+                    'id': brigade.id,
+                    'name_brigade': brigade.name_brigade
+                },
+                'is_member_added': is_member_added,
+                'is_occupied': is_occupied
+            })
 
-    return JsonResponse({'members': data})
+        return JsonResponse({'members': data})
 
-@csrf_exempt
+    if not brigade_id:
+        return JsonResponse({'error': 'Brigade ID is required'}, status=400)
+
+    members = User.objects.filter(memberbrigade__brigade_id=brigade_id).values_list('id', 'username')
+    members_map = {str(member_id): username for member_id, username in members}
+    return JsonResponse({'members': members_map})
+
+@employee_required
 @require_POST
 def add_member_to_date(request):
     data = json.loads(request.body)
@@ -741,7 +752,7 @@ def add_member_to_date(request):
     return JsonResponse({'success': True})
 
 
-@csrf_exempt
+@employee_required
 @require_POST
 def remove_member_from_date(request):
     data = json.loads(request.body)
@@ -757,17 +768,19 @@ def remove_member_from_date(request):
 
     return JsonResponse({'success': True})
 
+@employee_required
 def check_member_added(request):
     member_id = request.GET.get('member_id')
     date = request.GET.get('date')
 
+    if not member_id or not date:
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+
     is_added = ScheduleMember.objects.filter(user_id=member_id, date=date).exists()
-    member_brigade = MemberBrigade.objects.get(...)  # Получаем экземпляр MemberBrigade
-    member_brigade.increase_experience()  # Вызываем метод для увеличения опыта
     return JsonResponse({'is_added': is_added})
 
-
 @login_required
+@employee_required
 def get_schedule_members(request):
     start_date_str = request.GET.get('start')
     end_date_str = request.GET.get('end')
@@ -779,57 +792,29 @@ def get_schedule_members(request):
     try:
         start_date = timezone.datetime.fromisoformat(start_date_str).date()
         end_date = timezone.datetime.fromisoformat(end_date_str).date()
-        request = get_object_or_404(ServiceRequest, pk=request_id)
+        service_request = get_object_or_404(ServiceRequest, pk=request_id)
 
-        brigade = request.assigned_team
+        brigade = service_request.assigned_team
         schedule_members = ScheduleMember.objects.filter(
             brigade=brigade,
             date__range=(start_date, end_date),
-            service_request=request
+            service_request=service_request
         ).select_related('user', 'brigade')
 
         events = [{
             'title': member.user.username,
             'start': member.date.isoformat(),
             'end': member.date.isoformat(),
-            'address': request.get_address()  # Добавляем адрес в событие расписания
+            'address': service_request.get_address()  # Добавляем адрес в событие расписания
         } for member in schedule_members]
 
         return JsonResponse(events, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
-@login_required
-def get_brigade_members(request):
-    current_user = request.user
-    date = request.GET.get('date')
-    if not date:
-        return JsonResponse({'error': 'Date is required'}, status=400)
-
-    try:
-        brigade = current_user.leader_of_brigades.get()
-    except MemberBrigade.DoesNotExist:
-        return JsonResponse({'error': 'User is not a chief of any brigade'}, status=403)
-
-    members = MemberBrigade.objects.filter(brigade=brigade).select_related('user')
-    data = []
-
-    for member in members:
-        is_member_added = ScheduleMember.objects.filter(user=member.user, date=date).exists()
-        data.append({
-            'id': member.user.id,
-            'username': member.user.username,
-            'brigade': {
-                'id': brigade.id_brigade,
-                'name_brigade': brigade.name_brigade
-            },
-            'is_member_added': is_member_added
-        })
-
-    print(data)  # Отладочное сообщение
-    return JsonResponse({'members': data})
 
 
+@employee_required
 def check_member_status(request):
     member_id = request.GET.get('member_id')
     date = request.GET.get('date')

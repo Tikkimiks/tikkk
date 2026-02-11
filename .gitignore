@@ -4,8 +4,13 @@
 *.pyc
 __pycache__
 security/db.sqlite3
+security/debug.log
+security/receipt.pdf
+security/staticfiles/
+security/node_modules/
+security/tailwind/node_modules/
 media
-/security/node_modules
+
 # Backup files #
 *.bak
 

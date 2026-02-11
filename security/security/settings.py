@@ -1,6 +1,19 @@
 import os
 from pathlib import Path
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'security.settings')
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name: str, default: str = "") -> list[str]:
+    value = os.getenv(name, default)
+    return [item.strip() for item in value.split(",") if item.strip()]
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,13 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ei@9p$&_k5$xd+@59unju$-=5!$x))l-s@1j&2w*&-tdbbjhgm'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TELEGRAM_BOT_TOKEN = '7124867232:AAHgSHNj8e79LofMHPjxvMITnMdeajOFPOo'
+DEBUG = env_bool("DJANGO_DEBUG", True)
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
 # Application definition
 
@@ -33,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -106,6 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -113,12 +129,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'dist'
-]
-# Дополнительная директория для статических файлов
-STATICFILES_DIRS = [
+    BASE_DIR / 'dist',
     BASE_DIR / 'main' / 'static',
 ]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Дополнительная директория для статических файлов
 # LOGGING = {
 #     'version': 1,
 #     'disable_existing_loggers': False,
@@ -149,15 +164,19 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-PDF_DIR = os.path.join(BASE_DIR, 'main', 'pdf_documents')  # Путь к папке для сохранения PDF-файлов
+PDF_DIR = os.path.join(BASE_DIR, 'main', 'pdf_documents')  # Рекомендуемый путь для PDF
 
-EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = 465
-EMAIL_HOST_USER = "berkut.kozlov@yandex.ru"
-EMAIL_HOST_PASSWORD = "dekicrlvksfhlnzd"
-EMAIL_USE_SSL =True
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "465"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", True)
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
-EMAIL_ADMIN = EMAIL_HOST_USER
+if EMAIL_HOST and EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "no-reply@example.com"
+SERVER_EMAIL = EMAIL_HOST_USER or "no-reply@example.com"
+EMAIL_ADMIN = EMAIL_HOST_USER or "no-reply@example.com"

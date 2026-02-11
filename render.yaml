@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: berkut-security
+    env: python
+    buildCommand: pip install -r requirements.txt && python security/manage.py collectstatic --noinput && python security/manage.py migrate --noinput
+    startCommand: gunicorn security.wsgi:application --chdir security
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: "https://your-app.onrender.com"

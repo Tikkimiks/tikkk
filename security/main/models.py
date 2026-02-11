@@ -196,7 +196,7 @@ class ServiceRequest(models.Model):
         return f"{self.service} - {self.user}"
 
     def get_service_price(self):
-        return self.service.price
+        return self.service.base_price
 
     def save(self, *args, **kwargs):
         # Ensure rejection_reason is not None

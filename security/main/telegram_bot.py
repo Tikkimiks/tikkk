@@ -52,14 +52,14 @@
 #
 #
 # def send_notification(chat_id, message, id):
-#     url = f"https://api.telegram.org/bot{7124867232:AAHgSHNj8e79LofMHPjxvMITnMdeajOFPOo}/sendMessage"
+#     url = f"https://api.telegram.org/bot{YOUR_TELEGRAM_BOT_TOKEN}/sendMessage"
 #     data = {'chat_id': chat_id, 'text': message, 'id': id}
 #     response = requests.post(url, data=data)
 #     return response.json()
 #
 # def main():
 #     # Инициализируем бота с вашим токеном
-#     updater = Updater("7124867232:AAHgSHNj8e79LofMHPjxvMITnMdeajOFPOo", use_context=True)
+#     updater = Updater("YOUR_TELEGRAM_BOT_TOKEN", use_context=True)
 #
 #     # Получаем диспетчер для регистрации обработчиков
 #     dp = updater.dispatcher
