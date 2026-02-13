@@ -19,7 +19,7 @@ body{
 }
 
 .main-ph{
-    background: url('static/main/main-ph.png'), no-repeat;
+    background: url('main-ph.png') no-repeat;
     height:78vh;
 }
 .main-ds{
