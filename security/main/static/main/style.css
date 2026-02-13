@@ -28,6 +28,9 @@ body{
     padding-block: 5vh;
     box-sizing: border-box;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .hero__bg{
     position: absolute;
