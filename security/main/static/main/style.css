@@ -41,11 +41,19 @@ body{
 }
 .main-ds{
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
+    gap: 48px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5vw;
 }
 .main-ds img{
-    padding-top: 10%;
+    padding-top: 0;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
 }
 .main-tx h1{
     font-family: Seymour One;
@@ -55,6 +63,19 @@ body{
 .main-tx p{
     font-size: 51px;
     color: white;
+}
+@media (max-width: 900px) {
+    .main-ds{
+        flex-direction: column;
+        text-align: center;
+        gap: 24px;
+    }
+    .main-tx h1{
+        font-size: 48px;
+    }
+    .main-tx p{
+        font-size: 36px;
+    }
 }
 .font{
     font-family:Seymour One ;
